@@ -65,3 +65,13 @@
 (deftest count-column-data-set-test
   (let [data-set (make-data-set "name" "attributes" *test-matrix*)]
     (is (= (count-cols data-set) 3))))
+
+(deftest make-data-set-my-matrix-test
+  (let [data-set (make-data-set-my-matrix "name" '("a" "b" "c") '("row" "value") '("a" "b") "data")
+        data-set-nil (make-data-set-my-matrix "name" nil nil nil "data")]
+    (is (vector? (:attributes data-set)))
+    (is (vector? (:classifications data-set)))
+    (is (vector? (:row-labels data-set)))
+    (is (nil? (:attributes data-set-nil)))
+    (is (nil? (:classifications data-set-nil)))
+    (is (nil? (:row-labels data-set-nil)))))

@@ -79,12 +79,39 @@ returns A new data set with the selected values."))
                  (str (create-select-string rows) ";"
                       (create-select-string cols)))))
 
+(defn make-dense-double-matrix [rows cols]
+  "Creates a dense double matrix.
+
+rows - The number of rows
+cols - The number of cols
+
+returns The matrix representing thoses deminisions"
+  (new DefaultDenseDoubleMatrix2D (long rows) (long cols)))
+
 (defrecord DataSet
     [name
      attributes
      row-labels
      classifications
      #^AbstractMatrix data])
+
+(defn- create-vector [value]
+  (if (or (nil? value) (vector? value))
+    value
+    (vec value)))
+
+(defn make-data-set-my-matrix [name attributes row-labels classifications data]
+  "Used to create a dataset with your on specified matrix.
+
+name - Is the name of the data set
+attributes - The list of attributes for the data set
+row-labels - The row labels for the data set.
+classifications - The classifications for the data set
+data - The matrix for the data set.  It must be a DefaultDenseDoubleMatrix2d for now."
+ (DataSet. name
+           (create-vector attributes)
+           (create-vector row-labels)
+           (create-vector classifications) data))
 
 (defn- get-value-from-vec [x y data]
   (get (get data y) x))
@@ -130,7 +157,7 @@ returns A new data set with the selected values."))
 (defn- create-matrix [data options]
   (let [rows (count data)
         cols (count (first data))
-        matrix (new DefaultDenseDoubleMatrix2D (long rows) (long cols))
+        matrix (make-dense-double-matrix rows cols)
         get-value (fn [x y]
                     (double (get-value-from-vec x y data)))
         x-check (fn [x] (= x (- cols 1)))
@@ -164,7 +191,10 @@ options - The options
 
 :row-labels - Is the row-labels for the data set.
 :matrix-type - :sparse for a sparse matrix. :dense for a dense matrix.  Defaults to dense matrix.
-:data-type - :double, :int, :long, :boolean, :biginter, bigdemical. Defaults to :double"
+:data-type - :double, :int, :long, :boolean, :biginter, bigdemical. Defaults to :double
+:matrix - The matrix that stores your data. Current only DefaultDenseDoubleMatrix2D is supported"
   (let [opts (reduce-by-2 (fn [opts name value]
                             (assoc opts name value)) {} options)]
-    (DataSet. name attributes (:row-labels opts) (:classifications opts) (create-matrix data opts))))
+    (DataSet. name attributes (:row-labels opts) (:classifications opts) (if (contains? opts :matrix)
+                                                                           (:matrix opts)
+                                                                           (create-matrix data opts)))))
