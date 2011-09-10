@@ -19,7 +19,7 @@
   (count-rows [this])
   (count-cols [this])
   (select [data-set rows cols]
-        "Used to select the contents of the matrix
+            "Used to select the contents of the matrix
 
 rows - What rows to select.  To select all the rows use :all.  To select a range use 1 :to 2.  The values are expected to
 be in a sequence.
@@ -79,13 +79,14 @@ returns A new data set with the selected values."))
                  (str (create-select-string rows) ";"
                       (create-select-string cols)))))
 
-(defn make-dense-double-matrix [rows cols]
+(defn make-dense-double-matrix 
   "Creates a dense double matrix.
 
 rows - The number of rows
 cols - The number of cols
 
 returns The matrix representing thoses deminisions"
+  [rows cols]
   (new DefaultDenseDoubleMatrix2D (long rows) (long cols)))
 
 (defrecord DataSet
@@ -100,7 +101,7 @@ returns The matrix representing thoses deminisions"
     value
     (vec value)))
 
-(defn make-data-set-my-matrix [name attributes row-labels classifications data]
+(defn make-data-set-my-matrix 
   "Used to create a dataset with your on specified matrix.
 
 name - Is the name of the data set
@@ -108,6 +109,7 @@ attributes - The list of attributes for the data set
 row-labels - The row labels for the data set.
 classifications - The classifications for the data set
 data - The matrix for the data set.  It must be a DefaultDenseDoubleMatrix2d for now."
+  [name attributes row-labels classifications data]
  (DataSet. name
            (create-vector attributes)
            (create-vector row-labels)
@@ -180,7 +182,7 @@ data - The matrix for the data set.  It must be a DefaultDenseDoubleMatrix2d for
              (inc y)
              y)))))))
 
-(defn make-data-set [name attributes data & options]
+(defn make-data-set 
   "Used to createa a data set.  Data sets are expected to be numbers.  If you have strings in the
 dataset they need to be converted to numbers.
 
@@ -193,6 +195,7 @@ options - The options
 :matrix-type - :sparse for a sparse matrix. :dense for a dense matrix.  Defaults to dense matrix.
 :data-type - :double, :int, :long, :boolean, :biginter, bigdemical. Defaults to :double
 :matrix - The matrix that stores your data. Current only DefaultDenseDoubleMatrix2D is supported"
+  [name attributes data & options]
   (let [opts (reduce-by-2 (fn [opts name value]
                             (assoc opts name value)) {} options)]
     (DataSet. name attributes (:row-labels opts) (:classifications opts) (if (contains? opts :matrix)
