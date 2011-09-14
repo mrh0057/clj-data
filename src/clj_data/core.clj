@@ -2,7 +2,8 @@
   (:use clj-data.seq-utils)
   (:import [org.ujmp.core Matrix]
            [org.ujmp.core.matrix AbstractMatrix]
-           [org.ujmp.core.doublematrix.impl DefaultDenseDoubleMatrix2D]))
+           [org.ujmp.core.doublematrix.impl DefaultDenseDoubleMatrix2D]
+           [org.ujmp.core.doublematrix.stub AbstractDenseDoubleMatrix2D]))
 
 (defrecord SVD [u
                 s
@@ -12,7 +13,8 @@
   (copy [matrix])
   (svd [matrix])
   (set-value-matrix! [matrix x y value])
-  (get-value-matrix [matrix x y]))
+  (get-value-matrix [matrix x y])
+  (transpose [matrix]))
 
 (defprotocol RowColumnProtocol
   (get-value [this x y])
@@ -21,9 +23,9 @@
   (select [data-set rows cols]
             "Used to select the contents of the matrix
 
-rows - What rows to select.  To select all the rows use :all.  To select a range use 1 :to 2.  The values are expected to
+rows - What rows to select.  To select all the rows use :any.  To select a range use 1 :to 2.  The values are expected to
 be in a sequence.
-cols - What cols to select. To select all the cols use :all.  To select a range use 1 : to 3. The values are expected to be
+cols - What cols to select. To select all the cols use :any.  To select a range use 1 : to 3. The values are expected to be
 in a sequence.
 
 returns A new data set with the selected values."))
@@ -54,7 +56,7 @@ returns A new data set with the selected values."))
                        current-val
                        (rest selection))))))))
 
-(extend-type DefaultDenseDoubleMatrix2D
+(extend-type AbstractDenseDoubleMatrix2D
   MatrixProtocol
   (copy [matrix]
     (. matrix copy))
@@ -67,6 +69,8 @@ returns A new data set with the selected values."))
             (aget svd-matrix 2))))
   (get-value-matrix [#^DefaultDenseDoubleMatrix2D matrix #^Long x #^Long y]
     (. matrix getAsDouble y x))
+  (transpose [matrix]
+    (. matrix transpose))
   RowColumnProtocol
   (get-value [matrix x y]
     (get-value-matrix matrix x y))
